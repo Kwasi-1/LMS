@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
@@ -60,15 +62,15 @@ const HomePage = () => {
             </nav>
             <div className="flex items-center">
               {isAuthenticated ? (
-                <Link to={getDashboardLink()}>
+                <Link href={getDashboardLink()}>
                   <Button>Go to Dashboard</Button>
                 </Link>
               ) : (
                 <div className="flex space-x-4">
-                  <Link to="/login">
+                  <Link href="/login">
                     <Button variant="outline">Log in</Button>
                   </Link>
-                  <Link to="/register">
+                  <Link href="/register">
                     <Button>Sign up</Button>
                   </Link>
                 </div>
@@ -103,14 +105,14 @@ const HomePage = () => {
                           <div className="mt-8 sm:max-w-lg sm:mx-auto sm:text-center lg:text-left lg:mx-0">
                             <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                               <div className="rounded-md shadow">
-                                <Link to="/register">
+                                <Link href="/register">
                                   <Button size="lg" className="w-full">
                                     Get started
                                   </Button>
                                 </Link>
                               </div>
                               <div className="mt-3 sm:mt-0 sm:ml-3">
-                                <Link to="/login">
+                                <Link href="/login">
                                   <Button
                                     variant="outline"
                                     size="lg"
@@ -751,14 +753,14 @@ const HomePage = () => {
               </div>
               <div className="mt-8 lg:mt-0 lg:flex-shrink-0">
                 <div className="inline-flex rounded-md shadow">
-                  <Link to="/register">
+                  <Link href="/register">
                     <Button variant="secondary" size="lg">
                       Get started
                     </Button>
                   </Link>
                 </div>
                 <div className="ml-3 inline-flex rounded-md shadow">
-                  <Link to="/contact">
+                  <Link href="/contact">
                     <Button
                       variant="outline"
                       size="lg"
