@@ -1,5 +1,7 @@
-import { Link } from "react-router-dom";
-import { useAuth, UserRole } from "@/contexts/AuthContext";
+"use client";
+
+import Link from "next/link";
+import { useAuth, UserRole } from "@/context/AuthContext";
 import {
   Bell,
   LogOut,
@@ -21,12 +23,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
 import { SidebarTrigger } from "../ui/sidebar";
+import { useRouter } from "next/navigation";
 
 export function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
   const toggleTheme = () => {
@@ -52,7 +54,7 @@ export function Navbar() {
 
   const handleLogout = () => {
     logout();
-    navigate("/");
+    router.push("/");
   };
 
   return (
@@ -65,7 +67,7 @@ export function Navbar() {
                 <Menu className="h-6 w-6" />
               </SidebarTrigger>
             )}
-            <Link to="/" className="flex-shrink-0 flex items-center">
+            <Link href="/" className="flex-shrink-0 flex items-center">
               <span className="text-primary-600 font-bold text-xl">
                 LumenLMS
               </span>
@@ -122,7 +124,7 @@ export function Navbar() {
                     </div>
                     <div className="p-2 border-t text-center">
                       <Link
-                        to="/notifications"
+                        href="/notifications"
                         className="text-sm text-primary-600 hover:text-primary-700"
                       >
                         View all notifications
@@ -179,7 +181,7 @@ export function Navbar() {
                     </div>
                     <div className="p-2 border-t text-center">
                       <Link
-                        to="/messages"
+                        href="/messages"
                         className="text-sm text-primary-600 hover:text-primary-700"
                       >
                         View all messages
@@ -211,17 +213,17 @@ export function Navbar() {
                     </div>
                     <DropdownMenuItem
                       onClick={() =>
-                        navigate(getRoleDashboard(user?.role as UserRole))
+                        router.push(getRoleDashboard(user?.role as UserRole))
                       }
                     >
                       <User className="mr-2 h-4 w-4" />
                       <span>Dashboard</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/profile")}>
+                    <DropdownMenuItem onClick={() => router.push("/profile")}>
                       <User className="mr-2 h-4 w-4" />
                       <span>My Profile</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/settings")}>
+                    <DropdownMenuItem onClick={() => router.push("/settings")}>
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>
                     </DropdownMenuItem>
@@ -235,10 +237,10 @@ export function Navbar() {
               </>
             ) : (
               <div className="flex items-center space-x-4">
-                <Link to="/login">
+                <Link href="/login">
                   <Button variant="ghost">Login</Button>
                 </Link>
-                <Link to="/register">
+                <Link href="/register">
                   <Button>Sign Up</Button>
                 </Link>
               </div>
