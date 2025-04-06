@@ -153,10 +153,8 @@ const QuizDetail = () => {
   };
 
   const handleAutoSubmit = () => {
-    toast({
-      title: "Time's up!",
+    toast("Time's up!", {
       description: "Your quiz has been automatically submitted.",
-      variant: "destructive",
     });
     router.push("/student/quiz");
   };
@@ -166,10 +164,10 @@ const QuizDetail = () => {
     setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitDialogOpen(false);
-      toast({
-        title: "Quiz Submitted!",
+      toast("Quiz Submitted!", {
         description: "Your quiz has been successfully submitted.",
       });
+
       router.push("/student/quiz");
     }, 1500);
   };

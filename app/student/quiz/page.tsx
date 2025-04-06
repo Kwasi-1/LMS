@@ -109,13 +109,18 @@ const Quiz = () => {
 
   const handleTakeQuiz = () => {
     // Navigate to the quiz taking page
-    router.push(`/student/quiz/quiz-review`);
+    router.push(`/student/quiz/detail`);
   };
 
-  const handleReviewQuiz = (quizId: number) => {
+  const handleReviewQuiz = () => {
     // Navigate to the quiz review page
-    router.push(`/student/quiz/review/${quizId}`);
+    router.push(`/student/quiz/review/`);
   };
+
+  // const handleReviewQuiz = (quizId: number) => {
+  //   // Navigate to the quiz review page
+  //   router.push(`/student/quiz/review/${quizId}`);
+  // };
 
   const handleSubjectSelect = (subjectId: number) => {
     setSelectedSubject(subjectId);
@@ -397,7 +402,7 @@ const Quiz = () => {
                       key={year}
                       className="cursor-pointer hover:border-primary transition-colors"
                       onClick={() =>
-                        navigate(
+                        router.push(
                           `/student/past-questions/${selectedSubject}/${year}`
                         )
                       }
