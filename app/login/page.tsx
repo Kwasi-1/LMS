@@ -44,7 +44,7 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export function Login() {
+const Login = () => {
   const { login } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -66,16 +66,16 @@ export function Login() {
       // Redirect based on role
       switch (data.role) {
         case "admin":
-          router.push("/admin/dashboard");
+          router.push("/admin");
           break;
         case "teacher":
-          router.push("/teacher/dashboard");
+          router.push("/teacher/");
           break;
         case "student":
-          router.push("/student/dashboard");
+          router.push("/student");
           break;
         case "parent":
-          router.push("/parent/dashboard");
+          router.push("/parent/");
           break;
         default:
           router.push("/");
@@ -221,4 +221,6 @@ export function Login() {
       </div>
     </div>
   );
-}
+};
+
+export default Login;

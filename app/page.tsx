@@ -21,13 +21,13 @@ const HomePage = () => {
 
     switch (user.role) {
       case "admin":
-        return "/admin/dashboard";
+        return "/admin";
       case "teacher":
-        return "/teacher/dashboard";
+        return "/teacher";
       case "student":
-        return "/student/dashboard";
+        return "/student";
       case "parent":
-        return "/parent/dashboard";
+        return "/parent";
       default:
         return "/login";
     }
