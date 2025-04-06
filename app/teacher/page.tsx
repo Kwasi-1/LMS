@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardContent,
@@ -8,7 +10,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { BarChart, LineChart } from "@/components/ui/chart";
+import { BarChart } from "@/components/ui/charts/BarChart";
 import { Book, CheckCircle, Clock, Edit, FileText, Users } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
@@ -113,7 +115,6 @@ export function TeacherDashboard() {
     },
   ];
 
-  // Helper function to determine badge color
   const getTypeColor = (type: string) => {
     switch (type) {
       case "Quiz":
@@ -129,7 +130,6 @@ export function TeacherDashboard() {
     }
   };
 
-  // Helper function to determine deadline status
   const getDeadlineStatus = (date: Date) => {
     const today = new Date();
     const diffDays = Math.ceil(

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import {
   Card,
@@ -46,7 +48,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 // Mock data for students
 const studentsData = [
@@ -185,7 +187,7 @@ const recentActivities = [
 ];
 
 const StudentsPage = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [courseFilter, setCourseFilter] = useState("all");
@@ -385,15 +387,6 @@ const StudentsPage = () => {
                               <Progress
                                 value={student.performance}
                                 className="h-2 w-24"
-                                indicator={
-                                  student.performance >= 90
-                                    ? "bg-green-600"
-                                    : student.performance >= 80
-                                    ? "bg-blue-600"
-                                    : student.performance >= 70
-                                    ? "bg-yellow-600"
-                                    : "bg-red-600"
-                                }
                               />
                               <span>{student.performance}%</span>
                             </div>
@@ -427,7 +420,7 @@ const StudentsPage = () => {
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem
                                   onClick={() =>
-                                    navigate(
+                                    router.push(
                                       `/teacher/student/${student.id}/progress`
                                     )
                                   }
@@ -437,7 +430,7 @@ const StudentsPage = () => {
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() =>
-                                    navigate(
+                                    router.push(
                                       `/teacher/student/${student.id}/grades`
                                     )
                                   }
@@ -529,7 +522,6 @@ const StudentsPage = () => {
                             <div className="flex items-center gap-2">
                               <Progress
                                 value={student.performance}
-                                indicator="bg-red-600"
                                 className="h-2 w-24"
                               />
                               <span>{student.performance}%</span>
@@ -640,7 +632,6 @@ const StudentsPage = () => {
                         studentsData.length) *
                       100
                     }
-                    indicator="bg-green-600"
                     className="h-2"
                   />
                 </div>
@@ -664,7 +655,6 @@ const StudentsPage = () => {
                         studentsData.length) *
                       100
                     }
-                    indicator="bg-blue-600"
                     className="h-2"
                   />
                 </div>
@@ -688,7 +678,6 @@ const StudentsPage = () => {
                         studentsData.length) *
                       100
                     }
-                    indicator="bg-yellow-600"
                     className="h-2"
                   />
                 </div>
@@ -706,7 +695,6 @@ const StudentsPage = () => {
                         studentsData.length) *
                       100
                     }
-                    indicator="bg-red-600"
                     className="h-2"
                   />
                 </div>
