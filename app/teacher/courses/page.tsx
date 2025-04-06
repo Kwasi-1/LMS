@@ -4,6 +4,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import Image from "next/image";
 
 const TeacherCourses = () => {
   const router = useRouter();
@@ -13,7 +14,7 @@ const TeacherCourses = () => {
   };
 
   const createCourse = () => {
-    router.push("/teacher/courses/add");
+    router.push("/teacher/courses/create");
   };
 
   const courses = [
@@ -53,10 +54,12 @@ const TeacherCourses = () => {
             className="border rounded-lg shadow-sm overflow-hidden"
           >
             <div className="aspect-video bg-gray-100 flex items-center justify-center">
-              <img
+              <Image
                 src="/placeholder.svg"
                 alt={course.title}
                 className="w-full h-full object-cover"
+                width={200}
+                height={200}
               />
             </div>
             <div className="p-4">
