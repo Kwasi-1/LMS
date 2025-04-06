@@ -278,7 +278,7 @@ const AddResource = () => {
             <Button
               variant="outline"
               type="button"
-              onClick={() => navigate(`/teacher/courses/${courseId}/edit`)}
+              onClick={() => router.push(`/teacher/courses/${courseId}/edit`)}
             >
               Cancel
             </Button>

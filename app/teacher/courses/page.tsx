@@ -9,12 +9,16 @@ import Image from "next/image";
 const TeacherCourses = () => {
   const router = useRouter();
 
-  const viewCourse = (courseId: string) => {
-    router.push(`/teacher/courses/${courseId}`);
+  const viewCourse = () => {
+    router.push(`/teacher/courses/edit/`);
   };
 
+  // const viewCourse = (courseId: string) => {
+  //   router.push(`/teacher/courses/${courseId}`);
+  // };
+
   const createCourse = () => {
-    router.push("/teacher/courses/create");
+    router.push("/teacher/courses/add");
   };
 
   const courses = [

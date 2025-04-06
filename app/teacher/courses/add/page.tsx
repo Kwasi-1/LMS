@@ -70,8 +70,10 @@ const AddCourse = () => {
     toast.success("Course created successfully!");
 
     // Redirect to course edit page with a mock ID
-    const newCourseId = Math.floor(Math.random() * 1000);
-    router.push(`/teacher/courses/${newCourseId}/edit`);
+    // const newCourseId = Math.floor(Math.random() * 1000);
+    // router.push(`/teacher/courses/${newCourseId}/edit`);
+    router.push(`/teacher/courses/edit`);
+
   };
 
   return (
