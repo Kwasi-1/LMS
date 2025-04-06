@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Admin portal",
+  title: "Parent portal",
   description: "Lerning Management System",
 };
 
