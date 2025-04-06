@@ -391,14 +391,17 @@ const ViewCourse = () => {
   };
 
   // Navigate to a specific lesson
-  const navigateToLesson = (lessonId: string) => {
-    router.push(`/student/courses/${courseId}/lesson/${lessonId}`);
+  const navigateToLesson = () => {
+    router.push(`/student/courses/lesson-view`);
   };
+
+  // const navigateToLesson = (lessonId: string) => {
+  //   router.push(`/student/courses/${courseId}/lesson/${lessonId}`);
+  // };
 
   // Handle viewing resource
   const viewResource = (resourceId: string) => {
-    toast({
-      title: "Opening Resource",
+    toast("Opening Resource", {
       description: "Loading resource content...",
     });
   };
@@ -409,7 +412,7 @@ const ViewCourse = () => {
         variant="ghost"
         size="sm"
         className="mb-4"
-        onClick={() => navigate("/student/courses")}
+        onClick={() => router.push("/student/courses")}
       >
         <ChevronLeft className="h-4 w-4 mr-1" /> Back to Courses
       </Button>

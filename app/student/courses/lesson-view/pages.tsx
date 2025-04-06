@@ -31,7 +31,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/lib/toast";
 
 const lessonData = {
   id: "l1",
@@ -181,7 +181,6 @@ const moduleStructure = [
 const LessonView = () => {
   const router = useRouter();
   const { courseId, lessonId } = router.query;
-  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("content");
   const [notes, setNotes] = useState("");
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -204,16 +203,14 @@ const LessonView = () => {
   };
 
   const handleMarkComplete = () => {
-    toast({
-      title: "Lesson Completed",
+    toast("Lesson Completed", {
       description: "Your progress has been saved",
     });
   };
 
   const handleBookmark = () => {
     setIsBookmarked(!isBookmarked);
-    toast({
-      title: isBookmarked ? "Bookmark Removed" : "Lesson Bookmarked",
+    toast(isBookmarked ? "Bookmark Removed" : "Lesson Bookmarked", {
       description: isBookmarked
         ? "Removed from your saved items"
         : "Added to your saved items",
@@ -221,8 +218,7 @@ const LessonView = () => {
   };
 
   const handleSaveNotes = () => {
-    toast({
-      title: "Notes Saved",
+    toast("Notes Saved", {
       description: "Your notes have been saved successfully",
     });
   };
@@ -254,7 +250,7 @@ const LessonView = () => {
               variant="outline"
               size="sm"
               className="w-full justify-start"
-              onClick={() => navigate(`/student/courses/${courseId}/view`)}
+              onClick={() => router.push(`/student/courses/${courseId}/view`)}
             >
               <ChevronLeft className="h-4 w-4 mr-2" />
               Back to Course

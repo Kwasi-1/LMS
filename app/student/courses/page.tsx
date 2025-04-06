@@ -235,9 +235,13 @@ export function StudentCourses() {
     }
   };
 
-  const navigateToCourse = (courseId: string) => {
-    router.push(`/student/courses/${courseId}`);
+  const navigateToCourse = () => {
+    router.push(`/student/courses/view`);
   };
+
+  // const navigateToCourse = (courseId: string) => {
+  //   router.push(`/student/courses/${courseId}`);
+  // };
 
   return (
     <div className="space-y-6">
@@ -361,7 +365,7 @@ export function StudentCourses() {
                             : "outline"
                         }
                         className="w-full"
-                        onClick={() => navigateToCourse(course.id)}
+                        onClick={() => navigateToCourse()}
                       >
                         {course.status === "not-started"
                           ? "Start Course"
