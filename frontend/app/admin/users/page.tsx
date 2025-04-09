@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -46,102 +46,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Edit, MoreHorizontal, Search, Trash2, UserPlus } from "lucide-react";
-import { UserRole } from "@/context/AuthContext";
 import { toast } from "@/lib/toast";
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  avatar?: string;
-  status: "active" | "inactive" | "pending";
-  joinDate: string;
-};
-
-// Sample user data
-const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "John Smith",
-    email: "john.smith@example.com",
-    role: "admin",
-    avatar:
-      "https://ui-avatars.com/api/?name=John+Smith&background=0D8ABC&color=fff",
-    status: "active",
-    joinDate: "2023-01-10",
-  },
-  {
-    id: "2",
-    name: "Emily Johnson",
-    email: "emily.johnson@example.com",
-    role: "teacher",
-    avatar:
-      "https://ui-avatars.com/api/?name=Emily+Johnson&background=10B981&color=fff",
-    status: "active",
-    joinDate: "2023-02-15",
-  },
-  {
-    id: "3",
-    name: "Michael Brown",
-    email: "michael.brown@example.com",
-    role: "student",
-    avatar:
-      "https://ui-avatars.com/api/?name=Michael+Brown&background=6366F1&color=fff",
-    status: "active",
-    joinDate: "2023-03-05",
-  },
-  {
-    id: "4",
-    name: "Sarah Davis",
-    email: "sarah.davis@example.com",
-    role: "parent",
-    avatar:
-      "https://ui-avatars.com/api/?name=Sarah+Davis&background=F59E0B&color=fff",
-    status: "active",
-    joinDate: "2023-03-20",
-  },
-  {
-    id: "5",
-    name: "Robert Wilson",
-    email: "robert.wilson@example.com",
-    role: "teacher",
-    avatar:
-      "https://ui-avatars.com/api/?name=Robert+Wilson&background=10B981&color=fff",
-    status: "inactive",
-    joinDate: "2023-04-02",
-  },
-  {
-    id: "6",
-    name: "Jennifer Taylor",
-    email: "jennifer.taylor@example.com",
-    role: "student",
-    avatar:
-      "https://ui-avatars.com/api/?name=Jennifer+Taylor&background=6366F1&color=fff",
-    status: "pending",
-    joinDate: "2023-04-15",
-  },
-  {
-    id: "7",
-    name: "David Martinez",
-    email: "david.martinez@example.com",
-    role: "parent",
-    avatar:
-      "https://ui-avatars.com/api/?name=David+Martinez&background=F59E0B&color=fff",
-    status: "active",
-    joinDate: "2023-05-10",
-  },
-  {
-    id: "8",
-    name: "Lisa Anderson",
-    email: "lisa.anderson@example.com",
-    role: "teacher",
-    avatar:
-      "https://ui-avatars.com/api/?name=Lisa+Anderson&background=10B981&color=fff",
-    status: "active",
-    joinDate: "2023-05-25",
-  },
-];
+import { User } from "@/context/AuthContext";
+import api from "@/lib/api";
+import { BackendUrl } from "@/lib/utils";
 
 const userFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -152,6 +60,9 @@ const userFormSchema = z.object({
   status: z.enum(["active", "inactive", "pending"], {
     message: "Please select a status",
   }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters" }),
 });
 
 type UserFormValues = z.infer<typeof userFormSchema>;
@@ -164,6 +75,7 @@ export default function UsersManagement() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
@@ -172,6 +84,7 @@ export default function UsersManagement() {
       email: "",
       role: "student",
       status: "active",
+      password: "",
     },
   });
 
@@ -197,30 +110,52 @@ export default function UsersManagement() {
       email: "",
       role: "student",
       status: "active",
+      password: "",
     });
     setIsAddDialogOpen(true);
   };
 
   const onSubmitEdit = (data: UserFormValues) => {
-    console.log("Edit user:", data);
-    toast.success("User updated successfully");
-    setIsEditDialogOpen(false);
+    api
+      .put(`${BackendUrl}/admin/update-user/${selectedUser?._id}`, data)
+      .then((res) => {
+        toast.success(res.data.message);
+        fetchAllUsers();
+        setIsEditDialogOpen(false);
+      })
+      .catch((err) => toast.error(err.response.data.message));
   };
 
   const onSubmitAdd = (data: UserFormValues) => {
-    console.log("Add user:", data);
-    toast.success("User added successfully");
-    setIsAddDialogOpen(false);
+    api
+      .post(`${BackendUrl}/admin/create-new-user`, data)
+      .then((res) => {
+        toast.success(res.data.message);
+        fetchAllUsers();
+        setIsAddDialogOpen(false);
+      })
+      .catch((err) => toast.error(err.response.data.message));
   };
 
   const onConfirmDelete = () => {
-    console.log("Delete user:", selectedUser);
-    toast.success("User deleted successfully");
-    setIsDeleteDialogOpen(false);
+    api
+      .delete(`${BackendUrl}/admin/delete-user/${selectedUser?._id}`)
+      .then((res) => {
+        toast.success(res.data.message);
+        fetchAllUsers();
+        setIsDeleteDialogOpen(false);
+      })
+      .catch((err) => toast.error(err.response.data.message));
+  };
+
+  const fetchAllUsers = async () => {
+    api.get(`${BackendUrl}/admin/get-all-users`).then((res) => {
+      setAllUsers(res.data.data);
+    });
   };
 
   // Filter users based on search query and filters
-  const filteredUsers = mockUsers.filter((user) => {
+  const filteredUsers = allUsers.filter((user: User) => {
     // Search filter
     const matchesSearch =
       searchQuery === "" ||
@@ -266,6 +201,11 @@ export default function UsersManagement() {
         return "default";
     }
   };
+
+  useEffect(() => {
+    // Fetch all users when the component mounts
+    fetchAllUsers();
+  }, []);
 
   return (
     <div className="container mx-auto py-6 space-y-6">
@@ -337,8 +277,8 @@ export default function UsersManagement() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredUsers.map((user) => (
-                <TableRow key={user.id}>
+              filteredUsers.map((user: User) => (
+                <TableRow key={user._id}>
                   <TableCell className="font-medium">
                     <div className="flex items-center space-x-3">
                       <Avatar>
@@ -370,7 +310,7 @@ export default function UsersManagement() {
                     </Badge>
                   </TableCell>
                   <TableCell>
-                    {new Date(user.joinDate).toLocaleDateString()}
+                    {new Date(user.createdAt).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
@@ -407,7 +347,7 @@ export default function UsersManagement() {
           <DialogHeader>
             <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>
-              Update user information. Click save when you're done.
+              {"Update user information. Click save when you're done."}
             </DialogDescription>
           </DialogHeader>
           <Form {...form}>
@@ -492,6 +432,21 @@ export default function UsersManagement() {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{"User's Password"}</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <DialogFooter>
                 <Button
                   variant="outline"
@@ -599,6 +554,21 @@ export default function UsersManagement() {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{"User's Password"}</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <DialogFooter>
                 <Button
                   variant="outline"

@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,7 +30,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth, UserRole } from "@/context/AuthContext";
-import { toast } from "@/lib/toast";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -45,9 +42,7 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const Login = () => {
-  const { login } = useAuth();
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const { login, isLoading } = useAuth();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -59,33 +54,7 @@ const Login = () => {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    setIsLoading(true);
-    try {
-      await login(data.email, data.password, data.role as UserRole);
-
-      // Redirect based on role
-      switch (data.role) {
-        case "admin":
-          router.push("/admin");
-          break;
-        case "teacher":
-          router.push("/teacher/");
-          break;
-        case "student":
-          router.push("/student");
-          break;
-        case "parent":
-          router.push("/parent/");
-          break;
-        default:
-          router.push("/");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Login failed. Please check your credentials.");
-    } finally {
-      setIsLoading(false);
-    }
+    await login(data.email, data.password, data.role as UserRole);
   };
 
   return (
@@ -188,7 +157,7 @@ const Login = () => {
           </CardContent>
           <CardFooter className="flex justify-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{" "}
+              {"Don't have an account? "}
               <Link
                 href="/register"
                 className="text-primary-600 hover:text-primary-500"
@@ -198,26 +167,6 @@ const Login = () => {
             </p>
           </CardFooter>
         </Card>
-      </div>
-
-      <div className="mt-8 text-center text-sm text-gray-500">
-        <p className="mb-2">
-          Demo Credentials (use "password" as the password for all):
-        </p>
-        <div className="grid grid-cols-2 gap-2 max-w-md mx-auto">
-          <div className="bg-white p-2 rounded shadow-sm">
-            Admin: admin@example.com
-          </div>
-          <div className="bg-white p-2 rounded shadow-sm">
-            Teacher: teacher@example.com
-          </div>
-          <div className="bg-white p-2 rounded shadow-sm">
-            Student: student@example.com
-          </div>
-          <div className="bg-white p-2 rounded shadow-sm">
-            Parent: parent@example.com
-          </div>
-        </div>
       </div>
     </div>
   );
