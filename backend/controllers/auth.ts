@@ -1,9 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import User from "../models/user.model";
 import { errorHandler } from "../utils/errorHandlers";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { validateCreateAccount } from "../utils/dataValidation";
+import { validateUserType } from "../utils/dataValidation";
+import Students from "../models/student.model";
+import Admins from "../models/admin.model";
+import Parents from "../models/parent.model";
+import Teachers from "../models/teacher.model";
 
 export const register = async (
   req: Request,
@@ -11,26 +14,79 @@ export const register = async (
   next: NextFunction
 ) => {
   try {
-    const { error } = validateCreateAccount.validate(req.body);
+    const { role, password, email, ...otherCredentials } = req.body;
+
+    const { error } = validateUserType(role).validate(req.body);
 
     if (error) return next(errorHandler(error.details[0].message, 400));
 
-    const { name, email, password, role } = req.body;
 
-    const isUser = await User.findOne({ email: email.toLowerCase() });
+    let isUser;
+    switch (role) {
+      case "student":
+        isUser = await Students.findOne({ id: req.body.id });
+        break;
+
+      case "admin":
+        isUser = await Admins.findOne({ email: req.body.email.toLowerCase() });
+        break;
+
+      case "parent":
+        isUser = await Parents.findOne({ email: req.body.email.toLowerCase() });
+        break;
+
+      case "teacher":
+        isUser = await Teachers.findOne({
+          email: req.body.email.toLowerCase(),
+        });
+        break;
+
+      default:
+        return next(errorHandler("Invalid Role", 400));
+    }
 
     if (isUser) return next(errorHandler("User already exist", 400));
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await User.create({
-      name,
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      role,
-    });
+    let newUser;
+    switch (role) {
+      case "student":
+        newUser = await Students.create({
+          password: hashedPassword,
+          ...otherCredentials,
+        });
+        break;
 
-    const { password: savedPassword, otp: savedOtp, ...rest } = newUser._doc;
+      case "admin":
+        newUser = await Admins.create({
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          ...otherCredentials,
+        });
+        break;
+
+      case "parent":
+        newUser = await Parents.create({
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          ...otherCredentials,
+        });
+        break;
+
+      case "teacher":
+        newUser = await Teachers.create({
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          ...otherCredentials,
+        });
+        break;
+
+      default:
+        return next(errorHandler("Invalid Role", 400));
+    }
+
+    const { password: savedPassword, ...rest } = (newUser as any)._doc;
 
     const tokenData = {
       userId: newUser._id,
@@ -68,7 +124,29 @@ export const login = async (
     if (!email || !password)
       return next(errorHandler("Fill in all credentials", 400));
 
-    const user = await User.findOne({ email: email.toLowerCase(), role });
+    let user;
+    switch (role) {
+      case "student":
+        user = await Students.findOne({ id: req.body.id });
+        break;
+
+      case "admin":
+        user = await Admins.findOne({ email: req.body.email.toLowerCase() });
+        break;
+
+      case "parent":
+        user = await Parents.findOne({ email: req.body.email.toLowerCase() });
+        break;
+
+      case "teacher":
+        user = await Teachers.findOne({
+          email: req.body.email.toLowerCase(),
+        });
+        break;
+
+      default:
+        return next(errorHandler("Invalid Role", 400));
+    }
 
     if (!user) return next(errorHandler("Invalid Credentials", 400));
 
@@ -90,7 +168,7 @@ export const login = async (
       secure: true,
     });
 
-    const { password: userPassword, ...rest } = user._doc;
+    const { password: userPassword, ...rest } = (user as any)._doc;
 
     return res.status(200).json({
       message: "Login Successful",

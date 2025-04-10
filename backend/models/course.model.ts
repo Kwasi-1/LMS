@@ -6,7 +6,7 @@ interface ICourse extends Document, CourseDataProps {}
 const courseSchema = new Schema<ICourse>(
   {
     title: { type: String, required: true },
-    instructor: { type: String, ref: "Users", required: true },
+    instructor: { type: String, ref: "Teachers", required: true },
     subject: { type: String, required: true },
     userClass: { type: String, required: true },
     tags: [{ type: String }, { required: true }],

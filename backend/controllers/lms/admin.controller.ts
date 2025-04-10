@@ -2,11 +2,15 @@ import { NextFunction, Request, Response } from "express";
 
 import Quiz from "../../models/quiz.model";
 import { errorHandler } from "../../utils/errorHandlers";
-import User from "../../models/user.model";
 import UsersQuizData from "../../models/usersQuizData.model";
-import { validateCreateNewUser } from "../../utils/dataValidation";
+import { validateUserType } from "../../utils/dataValidation";
 import bcrypt from "bcrypt";
 import Courses from "../../models/course.model";
+import Teachers from "../../models/teacher.model";
+import Students from "../../models/student.model";
+import Parents from "../../models/parent.model";
+import Admins from "../../models/admin.model";
+import Assignments from "../../models/assignment.model";
 
 export const fetchDashboardInfo = async (
   req: Request,
@@ -14,13 +18,14 @@ export const fetchDashboardInfo = async (
   next: NextFunction
 ) => {
   try {
-    const allUsers = await User.find({ role: { $ne: "General" } });
+    const allStudents = await Students.find();
 
     const payload = {
-      totalUsers: await User.countDocuments(),
-      totalCourses: await Courses.countDocuments(),
+      totalStudents: allStudents.length,
+      recentStudents: allStudents,
+      totalTeachers: await Teachers.countDocuments(),
       totalQuizzes: await Quiz.countDocuments(),
-      recentUsers: allUsers,
+      totalAssignments: await Assignments.countDocuments(),
     };
 
     return res.status(200).json({
@@ -40,7 +45,26 @@ export const deleteUser = async (
   try {
     const id = req.params.id;
 
-    await User.findByIdAndDelete(id);
+    switch (req.params.role) {
+      case "student":
+        await Students.findByIdAndDelete(id);
+        break;
+
+      case "admin":
+        await Admins.findByIdAndDelete(id);
+        break;
+
+      case "parent":
+        await Parents.findByIdAndDelete(id);
+        break;
+
+      case "teacher":
+        await Teachers.findByIdAndDelete(id);
+        break;
+
+      default:
+        return next(errorHandler("Invalid Role", 400));
+    }
 
     await UsersQuizData.deleteMany({ userId: id });
 
@@ -58,11 +82,24 @@ export const getAllUsers = async (
   next: NextFunction
 ) => {
   try {
-    const users = await User.find({ _id: { $ne: req.userId } }).sort({
+    const admins = await Admins.find({ _id: { $ne: req.userId } }).sort({
       updatedAt: -1,
     });
 
-    res.status(200).json({ success: true, data: users });
+    const students = await Students.find();
+    const parents = await Parents.find();
+    const teachers = await Teachers.find();
+
+    const payload: any = [];
+
+    students.forEach((student) => payload.push(student));
+    admins.forEach((student) => payload.push(student));
+    teachers.forEach((student) => payload.push(student));
+    parents.forEach((student) => payload.push(student));
+
+    // console.log(payload);
+
+    res.status(200).json({ success: true, data: payload });
   } catch (error) {
     return next(error);
   }
@@ -74,19 +111,51 @@ export const createNewUser = async (
   next: NextFunction
 ) => {
   try {
-    const { error } = validateCreateNewUser.validate(req.body);
+    const { password, email, role, ...otherCredentials } = req.body;
+
+    if (!role) return next(errorHandler("Role required", 400));
+
+    const { error } = validateUserType(role).validate(req.body);
 
     if (error) return next(errorHandler(error.details[0].message, 400));
 
-    const { password, email, ...rest } = req.body;
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await User.create({
-      password: hashedPassword,
-      email: email.toLowerCase(),
-      ...rest,
-    });
+    switch (role) {
+      case "student":
+        await Students.create({
+          password: hashedPassword,
+          ...otherCredentials,
+        });
+        break;
+
+      case "admin":
+        await Admins.create({
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          ...otherCredentials,
+        });
+        break;
+
+      case "parent":
+        await Parents.create({
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          ...otherCredentials,
+        });
+        break;
+
+      case "teacher":
+        await Teachers.create({
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          ...otherCredentials,
+        });
+        break;
+
+      default:
+        return next(errorHandler("Invalid Role", 400));
+    }
 
     res.status(200).json({
       success: true,
@@ -103,19 +172,48 @@ export const updateUserCredentials = async (
   next: NextFunction
 ) => {
   try {
-    const { error } = validateCreateNewUser.validate(req.body);
+    const { password, email, role, ...otherCredentials } = req.body;
+    const { error } = validateUserType(role).validate(req.body);
 
     if (error) return next(errorHandler(error.details[0].message, 400));
 
-    const { password, email, ...rest } = req.body;
-
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await User.findByIdAndUpdate(req.params.id, {
-      password: hashedPassword,
-      email: email.toLowerCase(),
-      ...rest,
-    });
+    switch (role) {
+      case "student":
+        await Students.findByIdAndUpdate(req.params.id, {
+          password: hashedPassword,
+          ...otherCredentials,
+        });
+        break;
+
+      case "admin":
+        await Admins.findByIdAndUpdate(req.params.id, {
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          ...otherCredentials,
+        });
+        break;
+
+      case "parent":
+        await Parents.findByIdAndUpdate(req.params.id, {
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          ...otherCredentials,
+        });
+        break;
+
+      case "teacher":
+        await Teachers.findByIdAndUpdate(req.params.id, {
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          ...otherCredentials,
+        });
+        break;
+
+      default:
+        return next(errorHandler("Invalid Role", 400));
+    }
 
     res.status(200).json({
       success: true,
@@ -132,7 +230,7 @@ export const fetchUserData = async (
   next: NextFunction
 ) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await Students.findById(req.params.id);
 
     if (!user) return next(errorHandler("User not found", 400));
 

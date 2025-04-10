@@ -2,10 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import { validateCreateCourse } from "../../utils/lms/validateCreateCourse";
 import Quiz, { QuizDataProps } from "../../models/quiz.model";
 import { errorHandler } from "../../utils/errorHandlers";
-import User from "../../models/user.model";
 import { validateCreateAssignment } from "../../utils/lms/teacherValidation";
 import Assignments from "../../models/assignment.model";
 import Courses from "../../models/course.model";
+import Students from "../../models/student.model";
 
 export const CreateCourse = async (
   req: Request,
@@ -179,7 +179,7 @@ export const getAllStudents = async (
   next: NextFunction
 ) => {
   try {
-    const users = await User.find({ _id: { $ne: req.userId } }).sort({
+    const users = await Students.find({ _id: { $ne: req.userId } }).sort({
       updatedAt: -1,
     });
 

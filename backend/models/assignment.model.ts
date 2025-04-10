@@ -17,7 +17,7 @@ const assignmentSchema = new Schema<IAssignment>({
   status: { type: String, default: "draft", enum: ["publish", "draft", "pending", "graded"] },
   points: { type: Number, required: true },
   description: { type: String, required: true },
-  instructor: { type: String, ref: "Users" },
+  instructor: { type: String, ref: "Teachers" },
 });
 
 const Assignments = model("Assignments", assignmentSchema);

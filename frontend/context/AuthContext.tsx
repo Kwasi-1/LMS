@@ -15,6 +15,7 @@ export type UserRole = "admin" | "teacher" | "student" | "parent";
 
 export interface User {
   _id: string;
+  id: string;
   name: string;
   email: string;
   role: UserRole;

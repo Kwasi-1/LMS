@@ -19,10 +19,11 @@ import api from "@/lib/api";
 import { BackendUrl } from "@/lib/utils";
 
 interface IDashboardProps {
-  recentUsers: User[];
-  totalUsers: number;
-  totalCourses: number;
+  recentStudents: User[];
+  totalStudents: number;
+  totalTeachers: number;
   totalQuizzes: number;
+  totalAssignments: number;
 }
 export function AdminDashboard() {
   // const [loading, setLoading] = useState(true);
@@ -37,8 +38,8 @@ export function AdminDashboard() {
       })
       .catch((err) => {
         console.error("Error fetching dashboard data:", err);
-      })
-      // .finally(() => setLoading(false));
+      });
+    // .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -59,9 +60,9 @@ export function AdminDashboard() {
         <Card>
           <CardContent className="p-6 flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">Total Users</p>
+              <p className="text-sm font-medium text-gray-500">Total Students</p>
               <h3 className="text-3xl font-bold mt-1">
-                {dashboardData ? dashboardData.totalUsers : 0}
+                {dashboardData ? dashboardData.totalStudents : 0}
               </h3>
               <p className="text-xs text-green-600 mt-1 flex items-center">
                 <span className="font-medium">+2.5%</span>
@@ -77,9 +78,9 @@ export function AdminDashboard() {
         <Card>
           <CardContent className="p-6 flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">Total Courses</p>
+              <p className="text-sm font-medium text-gray-500">Total Teachers</p>
               <h3 className="text-3xl font-bold mt-1">
-                {dashboardData ? dashboardData.totalCourses : 0}
+                {dashboardData ? dashboardData.totalTeachers : 0}
               </h3>
               <p className="text-xs text-green-600 mt-1 flex items-center">
                 <span className="font-medium">+4.2%</span>
@@ -117,7 +118,7 @@ export function AdminDashboard() {
                 Total Assignments
               </p>
               <h3 className="text-3xl font-bold mt-1">
-                {dashboardData ? dashboardData.totalCourses : 0}
+                {dashboardData ? dashboardData.totalAssignments : 0}
               </h3>
               <p className="text-xs text-green-600 mt-1 flex items-center">
                 <span className="font-medium">+5.8%</span>
@@ -210,7 +211,7 @@ export function AdminDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {dashboardData.recentUsers.slice(0, 5).map((user) => (
+                {dashboardData.recentStudents.slice(0, 5).map((user) => (
                   <div key={user._id} className="flex items-center space-x-4">
                     <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
                       <span className="text-primary-700 font-medium">

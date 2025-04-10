@@ -288,7 +288,7 @@ export default function UsersManagement() {
                       <div>
                         <div className="font-medium">{user.name}</div>
                         <div className="text-sm text-gray-500">
-                          {user.email}
+                          {user.role === "student" ? user.id : user.email}
                         </div>
                       </div>
                     </div>

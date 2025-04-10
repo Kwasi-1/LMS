@@ -29,11 +29,22 @@ app.use("/api", generalRouter);
 app.use(
   "/api/admin",
   authUser,
-  authRole("admin", "parent", "teacher", "student"),
+  // authRole("admin", "parent", "teacher", "student"),
   adminRouter
 );
-app.use("/api/teacher", authUser, authRole("teacher"), teacherRouter);
-app.use("/api/parent", authUser, authRole("parent"), parentRouter);
+app.use(
+  "/api/teacher",
+  authUser,
+  // authRole("teacher"),
+  teacherRouter
+);
+
+app.use(
+  "/api/parent",
+  authUser,
+  // authRole("parent"),
+  parentRouter
+);
 app.use("/api/student", authUser, studentRouter);
 
 app.get("/", (req: Request, res: Response) => {

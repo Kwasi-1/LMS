@@ -2,9 +2,9 @@ import { Request, NextFunction, Response } from "express";
 import Course from "../../models/course.model";
 import { errorHandler } from "../../utils/errorHandlers";
 import Quiz from "../../models/quiz.model";
-import User from "../../models/user.model";
 import UsersQuizData from "../../models/usersQuizData.model";
 import bcrypt from "bcrypt";
+import Students from "../../models/student.model";
 
 export const getCourseData = async (
   req: Request,
@@ -239,7 +239,7 @@ export const setUserProfile = async (
   try {
     const { role, userClass, level, gender, profileUsername } = req.body;
 
-    const user = await User.findById(req.userId);
+    const user = await Students.findById(req.userId);
 
     let profilePicture;
 
@@ -250,11 +250,9 @@ export const setUserProfile = async (
 
     if (!user) return next(errorHandler("Couldn't Update User", 404));
 
-    user.avatar = profilePicture;
     user.role = role;
     user.gender = gender;
 
-    if (level) user.level = level;
     if (userClass) user.userClass = userClass;
 
     await user.save();
@@ -280,7 +278,7 @@ export const updatePassword = async (
     if (!oldPassword) return next(errorHandler("Old Password Required", 404));
     if (!newPassword) return next(errorHandler("New Password Required", 400));
 
-    const user = await User.findByIdAndUpdate(req.userId);
+    const user = await Students.findByIdAndUpdate(req.userId);
     if (!user) return next(errorHandler("User Not Found", 404));
 
     const isMatch = await bcrypt.compare(oldPassword, user.password);
