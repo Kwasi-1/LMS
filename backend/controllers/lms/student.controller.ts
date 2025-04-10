@@ -125,8 +125,6 @@ export const getQuizData = async (
   }
 };
 
-
-
 export const submitNewQuiz = async (
   req: Request,
   res: Response,
@@ -182,7 +180,6 @@ export const submitNewQuiz = async (
   }
 };
 
-
 export const fetchDashboardInfo = async (
   req: Request,
   res: Response,
@@ -233,7 +230,6 @@ export const fetchDashboardInfo = async (
     next(error);
   }
 };
-
 
 export const setUserProfile = async (
   req: Request,

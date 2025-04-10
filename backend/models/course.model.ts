@@ -6,23 +6,24 @@ interface ICourse extends Document, CourseDataProps {}
 const courseSchema = new Schema<ICourse>(
   {
     title: { type: String, required: true },
-    description: { type: String, required: true },
-    rating: { type: Number, default: 4.5 },
-    purchases: { type: Number, default: 0 },
-    price: { type: Number, required: true },
-    discount: { type: Number, default: 0 },
+    instructor: { type: String, ref: "Users", required: true },
+    subject: { type: String, required: true },
+    userClass: { type: String, required: true },
     tags: [{ type: String }, { required: true }],
-    level: { type: String, required: true },
-    demoLink: { type: String },
-    category: { type: String, required: true },
+    duration: { type: Number, required: true },
+    description: { type: String, required: true },
     benefits: [{ benefit: String }, { required: true }],
-    prerequisites: [{ prerequisite: String }, { required: true }],
     thumbnail: { type: String, required: true },
-    userClass: String,
-    subject: String,
+    status: {
+      type: String,
+      enum: ["active", "archived", "draft"],
+      default: "active",
+    },
     sections: [
       {
         sectionTitle: String,
+        sectionType: { type: String, enum: ["quiz", "assignment", "lesson"] },
+        duration: Number,
         lessons: [
           {
             lessonTitle: String,
@@ -38,6 +39,6 @@ const courseSchema = new Schema<ICourse>(
   { timestamps: true }
 );
 
-const Course = model("Courses", courseSchema);
+const Courses = model("Courses", courseSchema);
 
-export default Course;
+export default Courses;

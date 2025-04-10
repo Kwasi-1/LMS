@@ -1,21 +1,18 @@
 export interface CourseDataProps {
   title: string;
   description: string;
-  price: number;
-  rating?: number;
-  purchases?: number;
   subject: string;
   userClass: string;
-  discount: number;
   tags: string[];
-  level: string;
-  category: string;
-  demoLink: string;
-  prerequisites: { prerequisite: string }[];
+  instructor: string;
+  duration: number;
+  status: "active" | "draft" | "archived";
   benefits: { benefit: string }[];
   thumbnail: string;
   sections: {
+    sectionType: "quiz" | "assignment" | "lesson";
     sectionTitle: string;
+    duration: number;
     lessons: {
       lessonTitle: string;
       videoDescription: string;
@@ -29,36 +26,16 @@ export const validateCreateCourse = (data: CourseDataProps) => {
   if (!data.title) {
     return { success: false, message: "Course Title Required" };
   }
+  if (!data.instructor) {
+    return { success: false, message: "Instructor ID Required" };
+  }
 
   if (!data.description) {
     return { success: false, message: "Course Description Required" };
   }
 
-  if (!data.price) {
-    return { success: false, message: "Price Required" };
-  }
   if (data.tags.length === 0) {
     return { success: false, message: "Course Tags Required" };
-  }
-
-  if (!data.level) {
-    return { success: false, message: "Course Level Required" };
-  }
-
-  if (!data.category) {
-    return { success: false, message: "Course Category Required" };
-  }
-
-  if (!data.demoLink) {
-    return { success: false, message: "Course Demo Link Required" };
-  }
-  if (!data.prerequisites[0].prerequisite) {
-    return { success: false, message: "At least one prerequisite is required" };
-  }
-  if (
-    data.prerequisites[data.prerequisites.length - 1].prerequisite.length === 0
-  ) {
-    return { success: false, message: "A prerequisite left empty" };
   }
   if (!data.benefits[0].benefit) {
     return { success: false, message: "At least one benefit is required" };
@@ -69,25 +46,27 @@ export const validateCreateCourse = (data: CourseDataProps) => {
   if (!data.thumbnail) {
     return { success: false, message: "Course Thumbnail Required" };
   }
-  if (!data.sections[0].sectionTitle) {
+  if (data.sections[0].sectionTitle) {
     return { success: false, message: "Section Title Required" };
   }
   for (const section of data.sections) {
     if (!section.sectionTitle) {
       return { success: false, message: "Section Title Required" };
     }
-    for (const lesson of section.lessons) {
-      if (!lesson.lessonTitle) {
-        return { success: false, message: "Lesson Title Required" };
-      }
-      if (!lesson.videoDescription) {
-        return { success: false, message: "Video Description Required" };
-      }
-      if (!lesson.videoDuration) {
-        return { success: false, message: "Video Duration Required" };
-      }
-      if (!lesson.videoUrl) {
-        return { success: false, message: "Video URL Required" };
+    if (section.sectionType === "lesson") {
+      for (const lesson of section.lessons) {
+        if (!lesson.lessonTitle) {
+          return { success: false, message: "Lesson Title Required" };
+        }
+        if (!lesson.videoDescription) {
+          return { success: false, message: "Video Description Required" };
+        }
+        if (!lesson.videoDuration) {
+          return { success: false, message: "Video Duration Required" };
+        }
+        if (!lesson.videoUrl) {
+          return { success: false, message: "Video URL Required" };
+        }
       }
     }
   }
@@ -95,20 +74,15 @@ export const validateCreateCourse = (data: CourseDataProps) => {
   return { success: true, message: "All sections filled" };
 };
 
-export const dummyCourseData = {
+export const dummyCourseData: CourseDataProps = {
   title: "Introduction to React",
+  duration: 20,
+  status: "active",
+  instructor: "Jeo Doe",
+  subject: "ICT",
+  userClass: "class6",
   description: "A comprehensive course on React for beginners.",
-  price: "49.99",
-  discount: "10",
   tags: ["React", " JavaScript", "Frontend"],
-  level: "General",
-  category: "Programming",
-  demoLink: "https://example.com/demo",
-  prerequisites: [
-    {
-      prerequisite: "Basic knowledge of JavaScript",
-    },
-  ],
   benefits: [
     {
       benefit: "Learn the fundamentals of React.",
@@ -125,12 +99,13 @@ export const dummyCourseData = {
   sections: [
     {
       sectionTitle: "Getting Started",
+      duration: 50,
+      sectionType: "lesson",
       lessons: [
         {
           lessonTitle: "Introduction to React",
           videoDescription: "An overview of React and its core concepts.",
           videoDuration: "10",
-          videoTitle: "Intro to React",
           videoUrl: "https://example.com/video/intro-to-react",
         },
         {
@@ -138,26 +113,25 @@ export const dummyCourseData = {
           videoDescription:
             "How to set up your environment for React development.",
           videoDuration: "15",
-          videoTitle: "Setup Guide",
           videoUrl: "https://example.com/video/setup-guide",
         },
       ],
     },
     {
       sectionTitle: "Components and Props",
+      duration: 50,
+      sectionType: "lesson",
       lessons: [
         {
           lessonTitle: "Understanding Components",
           videoDescription: "Learn about React components and their lifecycle.",
           videoDuration: "20",
-          videoTitle: "React Components",
           videoUrl: "https://example.com/video/react-components",
         },
         {
           lessonTitle: "Props and State",
           videoDescription: "How to use props and state in React.",
           videoDuration: "18",
-          videoTitle: "Props and State",
           videoUrl: "https://example.com/video/props-and-state",
         },
       ],

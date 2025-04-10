@@ -1,7 +1,6 @@
 import { Router } from "express";
 import {
   fetchDashboardInfo,
-  fetchUserData,
   getClassCourses,
   getClassQuizzes,
   getCourseData,
@@ -19,7 +18,6 @@ router.post("/get-class-courses", getClassCourses);
 router.get("/get-quiz-data/:quizId", getQuizData);
 
 router.post("/submit-quiz", submitNewQuiz);
-
 
 router.post("/fetch-dashboard-info", fetchDashboardInfo);
 
