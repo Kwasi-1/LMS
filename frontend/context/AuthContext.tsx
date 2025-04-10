@@ -61,16 +61,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   const navigateUser = (role: string) => {
     switch (role) {
       case "teacher":
-        router.push("/teacher/dashboard");
+        router.push("/teacher");
         break;
       case "student":
-        router.push("/student/dashboard");
+        router.push("/student");
         break;
       case "parent":
-        router.push("/parent/dashboard");
+        router.push("/parent");
         break;
       case "admin":
-        router.push("/admin/dashboard");
+        router.push("/admin");
         break;
       default:
         router.push("/");

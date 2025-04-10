@@ -14,7 +14,7 @@ export const register = async (
     const { error } = validateCreateAccount.validate(req.body);
 
     if (error) return next(errorHandler(error.details[0].message, 400));
-    
+
     const { name, email, password, role } = req.body;
 
     const isUser = await User.findOne({ email: email.toLowerCase() });
@@ -32,10 +32,26 @@ export const register = async (
 
     const { password: savedPassword, otp: savedOtp, ...rest } = newUser._doc;
 
-    return res.status(200).json({
-      message: "Check your email for the OTP to verify your account",
-      data: rest,
+    const tokenData = {
+      userId: newUser._id,
+    };
+
+    const accessToken = jwt.sign(tokenData, process.env.ACCESS_TOKEN as any, {
+      expiresIn: "48h",
     });
+
+    res
+      .status(200)
+      .cookie("ACCESS_TOKEN", accessToken, {
+        sameSite: "none",
+        httpOnly: true,
+        secure: true,
+      })
+      .json({
+        success: true,
+        message: "Account Created successfully",
+        data: rest,
+      });
   } catch (error) {
     next(error);
   }
