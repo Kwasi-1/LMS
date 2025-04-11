@@ -10,64 +10,39 @@ import {
 import { BarChart } from "@/components/ui/charts/BarChart";
 import { LineChart } from "@/components/ui/charts/LineChart";
 import { PieChart } from "@/components/ui/charts/PieChart";
-import {
-  BarChartIcon,
-  BookOpen,
-  GraduationCap,
-  School,
-  UserPlus,
-  Users,
-} from "lucide-react";
+import { BookOpen, GraduationCap, UserPlus, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
+import { User } from "@/context/AuthContext";
+import api from "@/lib/api";
+import { BackendUrl } from "@/lib/utils";
 
+interface IDashboardProps {
+  recentStudents: User[];
+  totalStudents: number;
+  totalTeachers: number;
+  totalQuizzes: number;
+  totalAssignments: number;
+}
 export function AdminDashboard() {
-  const [recentUsers, setRecentUsers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState<IDashboardProps>();
+
+  const fetchData = async () => {
+    // setLoading(true);
+    api
+      .get(`${BackendUrl}/admin//fetch-dashboard-info`)
+      .then((res) => {
+        setDashboardData(res.data.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching dashboard data:", err);
+      });
+    // .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
-    // Mock data fetch
-    const fetchData = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setRecentUsers([
-        {
-          id: 1,
-          name: "Emma Thompson",
-          role: "Student",
-          date: new Date("2023-05-15"),
-        },
-        {
-          id: 2,
-          name: "James Wilson",
-          role: "Teacher",
-          date: new Date("2023-05-14"),
-        },
-        {
-          id: 3,
-          name: "Olivia Martinez",
-          role: "Student",
-          date: new Date("2023-05-13"),
-        },
-        {
-          id: 4,
-          name: "Noah Garcia",
-          role: "Student",
-          date: new Date("2023-05-12"),
-        },
-        {
-          id: 5,
-          name: "Sophia Davis",
-          role: "Parent",
-          date: new Date("2023-05-11"),
-        },
-      ]);
-
-      setLoading(false);
-    };
-
     fetchData();
   }, []);
 
@@ -85,8 +60,10 @@ export function AdminDashboard() {
         <Card>
           <CardContent className="p-6 flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">Total Users</p>
-              <h3 className="text-3xl font-bold mt-1">2,547</h3>
+              <p className="text-sm font-medium text-gray-500">Total Students</p>
+              <h3 className="text-3xl font-bold mt-1">
+                {dashboardData ? dashboardData.totalStudents : 0}
+              </h3>
               <p className="text-xs text-green-600 mt-1 flex items-center">
                 <span className="font-medium">+2.5%</span>
                 <span className="ml-1">from last month</span>
@@ -101,10 +78,10 @@ export function AdminDashboard() {
         <Card>
           <CardContent className="p-6 flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">
-                Active Courses
-              </p>
-              <h3 className="text-3xl font-bold mt-1">156</h3>
+              <p className="text-sm font-medium text-gray-500">Total Teachers</p>
+              <h3 className="text-3xl font-bold mt-1">
+                {dashboardData ? dashboardData.totalTeachers : 0}
+              </h3>
               <p className="text-xs text-green-600 mt-1 flex items-center">
                 <span className="font-medium">+4.2%</span>
                 <span className="ml-1">from last month</span>
@@ -119,8 +96,10 @@ export function AdminDashboard() {
         <Card>
           <CardContent className="p-6 flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-500">New Sign-Ups</p>
-              <h3 className="text-3xl font-bold mt-1">47</h3>
+              <p className="text-sm font-medium text-gray-500">Total Quizzes</p>
+              <h3 className="text-3xl font-bold mt-1">
+                {dashboardData ? dashboardData.totalQuizzes : 0}
+              </h3>
               <p className="text-xs text-green-600 mt-1 flex items-center">
                 <span className="font-medium">+12.7%</span>
                 <span className="ml-1">from last month</span>
@@ -136,9 +115,11 @@ export function AdminDashboard() {
           <CardContent className="p-6 flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-500">
-                Completed Courses
+                Total Assignments
               </p>
-              <h3 className="text-3xl font-bold mt-1">328</h3>
+              <h3 className="text-3xl font-bold mt-1">
+                {dashboardData ? dashboardData.totalAssignments : 0}
+              </h3>
               <p className="text-xs text-green-600 mt-1 flex items-center">
                 <span className="font-medium">+5.8%</span>
                 <span className="ml-1">from last month</span>
@@ -216,7 +197,7 @@ export function AdminDashboard() {
             <CardDescription>New users who joined the platform</CardDescription>
           </CardHeader>
           <CardContent>
-            {loading ? (
+            {!dashboardData ? (
               <div className="space-y-4">
                 {[...Array(5)].map((_, i) => (
                   <div key={i} className="flex items-center space-x-4">
@@ -230,8 +211,8 @@ export function AdminDashboard() {
               </div>
             ) : (
               <div className="space-y-4">
-                {recentUsers.map((user) => (
-                  <div key={user.id} className="flex items-center space-x-4">
+                {dashboardData.recentStudents.slice(0, 5).map((user) => (
+                  <div key={user._id} className="flex items-center space-x-4">
                     <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
                       <span className="text-primary-700 font-medium">
                         {user.name
@@ -243,7 +224,8 @@ export function AdminDashboard() {
                     <div>
                       <p className="font-medium">{user.name}</p>
                       <p className="text-sm text-gray-500">
-                        {user.role} • Joined {format(user.date, "MMM dd, yyyy")}
+                        {user.role} • Joined{" "}
+                        {format(user.createdAt, "MMM dd, yyyy")}
                       </p>
                     </div>
                   </div>
@@ -329,8 +311,9 @@ export function AdminDashboard() {
                 <div>
                   <h4 className="font-medium">New Feature Released</h4>
                   <p className="text-sm text-gray-600 mt-1">
-                    We've added new AI-powered grading tools for multiple-choice
-                    assessments.
+                    {
+                      "We've added new AI-powered grading tools for multiple-choice assessments."
+                    }
                   </p>
                 </div>
               </div>

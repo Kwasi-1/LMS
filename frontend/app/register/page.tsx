@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -33,7 +31,6 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth, UserRole } from "@/context/AuthContext";
-import { toast } from "@/lib/toast";
 
 const registerSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters" }),
@@ -49,10 +46,10 @@ const registerSchema = z.object({
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
-export function Register() {
-  const { signup } = useAuth();
-  const router = useRouter(); // <-- Use Next.js router
-  const [isLoading, setIsLoading] = useState(false);
+export default function Register() {
+  const { signup, isLoading } = useAuth();
+  // <-- Use Next.js router
+  // const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -66,30 +63,7 @@ export function Register() {
   });
 
   const onSubmit = async (data: RegisterFormValues) => {
-    setIsLoading(true);
-    try {
-      await signup(data.name, data.email, data.password, data.role as UserRole);
-
-      // Redirect based on role
-      switch (data.role) {
-        case "teacher":
-          router.push("/teacher/dashboard");
-          break;
-        case "student":
-          router.push("/student/dashboard");
-          break;
-        case "parent":
-          router.push("/parent/dashboard");
-          break;
-        default:
-          router.push("/");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Registration failed: " + (error as Error).message);
-    } finally {
-      setIsLoading(false);
-    }
+    signup(data.name, data.email, data.password, data.role as UserRole, data.terms);
   };
 
   return (
@@ -203,7 +177,7 @@ export function Register() {
                         <FormLabel>
                           I agree to the{" "}
                           <Link
-                            to="/terms"
+                            href="/terms"
                             className="text-primary-600 hover:text-primary-500"
                           >
                             terms and conditions
@@ -224,7 +198,7 @@ export function Register() {
             <p className="text-sm text-gray-600">
               Already have an account?{" "}
               <Link
-                to="/login"
+                href={"/login"}
                 className="text-primary-600 hover:text-primary-500"
               >
                 Sign in

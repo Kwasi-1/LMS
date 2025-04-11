@@ -1,5 +1,4 @@
 "use client";
-
 import React, {
   createContext,
   useContext,
@@ -8,15 +7,21 @@ import React, {
   ReactNode,
 } from "react";
 import { toast } from "@/lib/toast";
+import { BackendUrl } from "@/lib/utils";
+import api from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 export type UserRole = "admin" | "teacher" | "student" | "parent";
 
-interface User {
+export interface User {
+  _id: string;
   id: string;
   name: string;
   email: string;
   role: UserRole;
-  avatar?: string;
+  avatar: string;
+  status: "active" | "inactive" | "pending";
+  createdAt: string;
 }
 
 interface AuthContextType {
@@ -28,7 +33,8 @@ interface AuthContextType {
     name: string,
     email: string,
     password: string,
-    role: UserRole
+    role: UserRole,
+    terms: boolean
   ) => Promise<void>;
   logout: () => void;
   forgotPassword: (email: string) => Promise<void>;
@@ -37,45 +43,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demo purposes
-const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "Admin User",
-    email: "admin@example.com",
-    role: "admin",
-    avatar:
-      "https://ui-avatars.com/api/?name=Admin+User&background=0D8DDC&color=fff",
-  },
-  {
-    id: "2",
-    name: "Teacher User",
-    email: "teacher@example.com",
-    role: "teacher",
-    avatar:
-      "https://ui-avatars.com/api/?name=Teacher+User&background=10B981&color=fff",
-  },
-  {
-    id: "3",
-    name: "Student User",
-    email: "student@example.com",
-    role: "student",
-    avatar:
-      "https://ui-avatars.com/api/?name=Student+User&background=F59E0B&color=fff",
-  },
-  {
-    id: "4",
-    name: "Parent User",
-    email: "parent@example.com",
-    role: "parent",
-    avatar:
-      "https://ui-avatars.com/api/?name=Parent+User&background=7C3AED&color=fff",
-  },
-];
-
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -88,117 +59,93 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     setIsLoading(false);
   }, []);
 
+  const navigateUser = (role: string) => {
+    switch (role) {
+      case "teacher":
+        router.push("/teacher");
+        break;
+      case "student":
+        router.push("/student");
+        break;
+      case "parent":
+        router.push("/parent");
+        break;
+      case "admin":
+        router.push("/admin");
+        break;
+      default:
+        router.push("/");
+    }
+  };
+
   const login = async (email: string, password: string, role: UserRole) => {
     setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // For demo purposes, check if the user exists in our mock data
-      const foundUser = mockUsers.find(
-        (u) => u.email === email && u.role === role
-      );
-
-      if (foundUser && password === "password") {
-        // Simple password check for demo
-        setUser(foundUser);
-        localStorage.setItem("lms_user", JSON.stringify(foundUser));
-        toast.success(`Welcome back, ${foundUser.name}!`);
-      } else {
-        throw new Error("Invalid credentials or user not found");
-      }
-    } catch (error) {
-      toast.error("Login failed: " + (error as Error).message);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    api
+      .post(`${BackendUrl}/login`, { email, password, role })
+      .then((res) => {
+        const userData: User = res.data.data.userInfo;
+        setUser(userData);
+        localStorage.setItem("lms_user", JSON.stringify(userData));
+        toast.success(`Welcome back, ${userData.name}!`);
+        navigateUser(role);
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message);
+      })
+      .finally(() => setIsLoading(false));
   };
 
   const signup = async (
     name: string,
     email: string,
     password: string,
-    role: UserRole
+    role: UserRole,
+    terms: boolean
   ) => {
     setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+    api
+      .post(`${BackendUrl}/register`, { name, email, password, role, terms })
+      .then((res) => {
+        const newUser: User = res.data.data;
 
-      // Check if email is already in use
-      if (mockUsers.some((u) => u.email === email)) {
-        throw new Error("Email already in use");
-      }
-
-      // Create new user for demo
-      const newUser: User = {
-        id: `${mockUsers.length + 1}`,
-        name,
-        email,
-        role,
-        avatar: `https://ui-avatars.com/api/?name=${name.replace(
-          " ",
-          "+"
-        )}&background=0D8DDC&color=fff`,
-      };
-
-      // Update local mockUsers array (this is just for demo)
-      mockUsers.push(newUser);
-
-      // Set the new user as current
-      setUser(newUser);
-      localStorage.setItem("lms_user", JSON.stringify(newUser));
-      toast.success("Account created successfully!");
-    } catch (error) {
-      toast.error("Signup failed: " + (error as Error).message);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+        setUser(newUser);
+        localStorage.setItem("lms_user", JSON.stringify(newUser));
+        toast.success("Account created successfully!");
+        navigateUser(role);
+      })
+      .catch((error) => toast.error(error.response.data.message))
+      .finally(() => setIsLoading(false));
   };
 
   const logout = () => {
-    localStorage.removeItem("lms_user");
-    setUser(null);
-    toast.success("Logged out successfully");
+    api
+      .post(`${BackendUrl}/logout`)
+      .then(() => {
+        localStorage.removeItem("lms_user");
+        setUser(null);
+        toast.success("Logged out successfully");
+      })
+      .catch((error) => {
+        toast.error(error.response.data.message);
+      });
   };
 
   const forgotPassword = async (email: string) => {
     setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Check if email exists
-      const userExists = mockUsers.some((u) => u.email === email);
-      if (!userExists) {
-        throw new Error("No account found with this email");
-      }
-
-      toast.success("Password reset instructions sent to your email");
-    } catch (error) {
-      toast.error((error as Error).message);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    api
+      .post(`${BackendUrl}/forgot-password`, { email })
+      .catch((error) => toast.error(error.response.data.message))
+      .finally(() => setIsLoading(false));
   };
 
   const resetPassword = async (token: string, password: string) => {
     setIsLoading(true);
-    try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // In a real app, we would validate the token and update the password
-      toast.success("Password reset successfully");
-    } catch (error) {
-      toast.error("Password reset failed: " + (error as Error).message);
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
+    api
+      .post(`${BackendUrl}/reset-password`, { token, password })
+      .then(() => {
+        toast.success("Password reset successfully!");
+      })
+      .catch((error) => toast.error(error.response.data.message));
   };
 
   const value = {

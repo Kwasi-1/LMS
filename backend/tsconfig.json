@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    // Specifies the target ECMAScript version for the compiled JavaScript code.
+    // "es2020" means that the output will be compatible with ES2020 features.
+    "target": "es2020",
+    
+    // Specifies the module system to use for the compiled JavaScript code.
+    // "commonjs" is commonly used in Node.js environments.
+    "module": "commonjs",
+    
+    // Enables all strict type-checking options.
+    // This includes options like strict null checks, no implicit any, etc.
+    "strict": true,
+    
+    // Enables emit interoperability between CommonJS and ES Modules.
+    // This is useful for working with modules that use `export =` and `import = require()` syntax.
+    "esModuleInterop": true,
+    
+    // Skips type checking of declaration files (.d.ts files).
+    // This can speed up compilation but may hide some type errors.
+    "skipLibCheck": true,
+    
+    // Ensures that file names are consistently cased.
+    // This is useful for maintaining consistent casing across different operating systems.
+    "forceConsistentCasingInFileNames": true,
+    
+    // Specifies the output directory for the compiled JavaScript code.
+    // This will place the compiled files in the `./build` directory.
+    "outDir": "./build"
+  },
+  
+  // Specifies the files or directories to include in the compilation.
+  // In this case, it includes all TypeScript files in the `src` directory.
+  // "include": ["src/**/*.ts"],
+  
+  // Specifies the files or directories to exclude from the compilation.
+  // In this case, it excludes the `node_modules` directory.
+  "exclude": ["node_modules"]
+}
